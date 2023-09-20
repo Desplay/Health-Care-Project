@@ -1,11 +1,23 @@
 import logo from './logo.svg';
 import './App.css';
 
+import { gql, useQuery } from '@apollo/client';
+
+const QUERY = gql`
+  query {
+    demoQuery
+  }
+`;
+
 function App() {
+  const { loading, error, data } = useQuery(QUERY);
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          {data.demoQuery}
+        </p>
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
