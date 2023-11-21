@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from './common/common.module';
-import { DemoQueryService } from './demoQuery.service';
+import { PatientsModule } from './patients/patients.module';
+import { DiseasesModule } from './diseases/diseases.module';
 
 @Module({
   imports: [
@@ -9,7 +10,8 @@ import { DemoQueryService } from './demoQuery.service';
       isGlobal: true,
     }),
     CommonModule,
+    PatientsModule,
+    DiseasesModule,
   ],
-  providers: [DemoQueryService],
 })
 export class AppModule {}

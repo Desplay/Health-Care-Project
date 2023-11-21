@@ -10,7 +10,7 @@ const QUERY = gql`
 `;
 
 function App() {
-  const { loading, error, data } = useQuery(QUERY);
+  const { data } = useQuery(QUERY);
   return (
     <div className="App">
       <header className="App-header">
