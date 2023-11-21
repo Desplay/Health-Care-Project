@@ -1,0 +1,30 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type DiseaseDTO {
+  diseaseID: String!
+  diseaseName: String!
+}
+
+type Diseases {
+  Diseases: [DiseaseDTO!]!
+}
+
+type Mutation {
+  addDefaultDiseases: String!
+  createPatient(patient: PatientInput!): String!
+}
+
+input PatientInput {
+  age: Int!
+  diseaseID: String!
+  gender: String!
+  message: String!
+  name: String!
+}
+
+type Query {
+  getDiseases: Diseases!
+  getTenPatientsHighestRisk: String!
+}

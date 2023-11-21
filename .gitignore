@@ -1,6 +1,6 @@
 # compiled output
-/dist
-/node_modules
+.vscode
+dist/
 node_modules/
 /.pnp
 .pnp.js
