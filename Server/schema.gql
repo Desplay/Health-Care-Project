@@ -3,8 +3,16 @@
 # ------------------------------------------------------
 
 type DiseaseDTO {
+  diseaseDescription: String
   diseaseID: String!
   diseaseName: String!
+}
+
+input DiseaseInput {
+  diseaseDescription: String
+  diseaseName: String!
+  prioritized: Int!
+  specialist: String!
 }
 
 type Diseases {
@@ -12,7 +20,8 @@ type Diseases {
 }
 
 type Mutation {
-  addDefaultDiseases: String!
+  createDefaultDiseases: String!
+  createDisease(diseaseInput: DiseaseInput!): String!
   createPatient(patient: PatientInput!): String!
 }
 

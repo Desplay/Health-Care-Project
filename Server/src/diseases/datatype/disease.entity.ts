@@ -5,6 +5,7 @@ export class Disease {
   diseaseName: string;
   prioritized: number;
   specialist: string;
+  description?: string;
 }
 
 export interface DiseaseEntity extends Disease, Document {}
@@ -14,6 +15,7 @@ export const DiseaseSchema = new Schema<DiseaseEntity>({
   diseaseName: { type: String, required: true },
   prioritized: { type: Number, required: true },
   specialist: { type: String, required: true },
+  description: { type: String, default: '' },
 });
 
 export const DiseaseModel = model<DiseaseEntity>('Disease', DiseaseSchema);
