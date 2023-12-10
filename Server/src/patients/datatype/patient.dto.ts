@@ -4,6 +4,9 @@ import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 @ObjectType()
 export class PatientDTO {
   @Field(() => String)
+  patientID: string;
+
+  @Field(() => String)
   PhyID: string;
 
   @Field(() => String)
@@ -18,7 +21,7 @@ export class PatientDTO {
   @Field(() => String)
   diseaseID: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   message: string;
 }
 
@@ -45,6 +48,6 @@ export class PatientInput {
   diseaseID: string;
 
   @IsString()
-  @Field(() => String)
-  message: string;
+  @Field(() => String, { nullable: true })
+  message?: string;
 }
