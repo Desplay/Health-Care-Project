@@ -22,18 +22,32 @@ type Diseases {
 type Mutation {
   createDefaultDiseases: String!
   createDisease(diseaseInput: DiseaseInput!): String!
-  createPatient(patient: PatientInput!): String!
+  createPatient(patientInput: PatientInput!): String!
+}
+
+type PatientDTO {
+  PhyID: String!
+  age: Int!
+  diseaseID: String!
+  gender: String!
+  message: String
+  name: String!
+  patientID: String!
 }
 
 input PatientInput {
   age: Int!
   diseaseID: String!
   gender: String!
-  message: String!
+  message: String
   name: String!
 }
 
 type Query {
+  editPatient(patientID: String!, patientInput: PatientInput!): String!
+  getAllPatients: [PatientDTO!]!
+  getDetailsPatient(patientID: String!): PatientDTO!
+  getDisease(diseaseNameorID: String!): DiseaseDTO!
   getDiseases: Diseases!
-  getTenPatientsHighestRisk: String!
+  getTenPatientsHighestRisk: [PatientDTO!]!
 }

@@ -22,7 +22,7 @@ export class DiseasesService {
 
   async getDisease(disease: string): Promise<DiseaseEntity> {
     return await this.diseaseModel.findOne({
-      $or: [{ diseaseID: disease }, { diseaseName: disease }],
+      $or: [{ diseaseID: disease }, { diseaseName: disease }, { _id: disease }],
     });
   }
 

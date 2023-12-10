@@ -23,6 +23,8 @@ export class PatientsService {
     );
     patientTransformed.disease = diseaseId;
     patientTransformed.PhyID = `BN${padZeros(patientCount + 1)}`;
+    patientTransformed.createdAt = new Date();
+    patientTransformed.nowOn = 'Lobby';
     const newPatient = new this.patientModel(patientTransformed);
     return await newPatient.save();
   }
@@ -31,33 +33,41 @@ export class PatientsService {
     return await this.patientModel.findById(id);
   }
 
+  async editPatient(id: string, patient: PatientInput): Promise<PatientEntity> {
+    const patientTransformed = new PatientInputtoEntity().transform(patient);
+    const diseaseId = await this.diseaseService.throwDiseaseID(
+      patient.diseaseID,
+    );
+    patientTransformed.disease = diseaseId;
+    const _id = await this.throwPatientIDdbyPhyID(id);
+    return await this.patientModel.findByIdAndUpdate(_id, patientTransformed);
+  }
+
   async getTenPatientsHighestRisk(): Promise<PatientEntity[]> {
     const data = await this.patientModel.aggregate([
-      { $group: { _id: '$disease', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
       {
         $lookup: {
           from: 'diseases',
-          localField: '_id',
+          localField: 'disease',
           foreignField: '_id',
           as: 'disease',
         },
       },
-      { $unwind: '$disease' },
-      {
-        $project: {
-          _id: 0,
-          diseaseID: '$disease.diseaseID',
-          disease: '$disease.disease',
-          count: 1,
-        },
-      },
     ]);
-    console.log(data);
+    data.sort((a, b) => {
+      return a.disease[0].prioritized - b.disease[0].prioritized;
+    });
+    data.map((patient) => {
+      patient.disease[0] = patient.disease[0]._id;
+      patient.disease = patient.disease[0];
+    });
     return data;
   }
   async getAllPatients(): Promise<PatientEntity[]> {
     return await this.patientModel.find();
+  }
+
+  async throwPatientIDdbyPhyID(patientID: string): Promise<string> {
+    return (await this.patientModel.findOne({ PhyID: patientID }))._id;
   }
 }

@@ -1,8 +1,9 @@
 import { Query, Resolver, Mutation, Args } from '@nestjs/graphql';
 import { DiseasesService } from './diseases.service';
-import { DiseaseInput, Diseases } from './datatype/disease.dto';
+import { DiseaseDTO, DiseaseInput, Diseases } from './datatype/disease.dto';
 import fs from 'fs';
 import { Message } from 'src/utils/message';
+import { ForbiddenException } from '@nestjs/common';
 
 @Resolver()
 export class DiseasesResolver {
@@ -15,7 +16,19 @@ export class DiseasesResolver {
       const status = (await this.addDefaultDiseases()).status;
       if (status === 204) diseases = await this.diseasesService.getDiseases();
     }
+    if (diseases.length === 0)
+      throw new ForbiddenException('No diseases added!');
     return { Diseases: diseases };
+  }
+
+  @Query(() => DiseaseDTO)
+  async getDisease(
+    @Args({ name: 'diseaseNameorID', type: () => String })
+    diseaseNameorID: string,
+  ): Promise<DiseaseDTO> {
+    const diseaseData = await this.diseasesService.getDisease(diseaseNameorID);
+    if (!diseaseData) throw new ForbiddenException('Disease not found!');
+    return diseaseData;
   }
 
   @Mutation(() => String)
