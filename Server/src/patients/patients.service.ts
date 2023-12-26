@@ -21,7 +21,10 @@ export class PatientsService {
     const diseaseId = await this.diseaseService.throwDiseaseID(
       patient.diseaseID,
     );
-    patientTransformed.disease = diseaseId;
+    const disease = await this.diseaseService.getDiseaseById(
+      diseaseId.toString(),
+    );
+    patientTransformed.disease = disease._id;
     patientTransformed.PhyID = `BN${padZeros(patientCount + 1)}`;
     patientTransformed.createdAt = new Date();
     patientTransformed.nowOn = 'Lobby';
@@ -39,12 +42,16 @@ export class PatientsService {
       patient.diseaseID,
     );
     patientTransformed.disease = diseaseId;
-    const _id = await this.throwPatientIDdbyPhyID(id);
-    return await this.patientModel.findByIdAndUpdate(_id, patientTransformed);
+    return await this.patientModel.findByIdAndUpdate(id, patientTransformed);
   }
 
   async getTenPatientsHighestRisk(): Promise<PatientEntity[]> {
     const data = await this.patientModel.aggregate([
+      {
+        $match: {
+          nowOn: 'Lobby',
+        },
+      },
       {
         $lookup: {
           from: 'diseases',
@@ -63,11 +70,47 @@ export class PatientsService {
     });
     return data;
   }
+
+  async movePatientToQueue(): Promise<PatientEntity> {
+    const patients = await this.getTenPatientsHighestRisk();
+    const patient = patients[0];
+    patient.nowOn = 'Queue';
+    return await this.patientModel.findByIdAndUpdate(patient._id, patient);
+  }
+
+  async getPatientsInQueue(): Promise<PatientEntity[]> {
+    const data = await this.patientModel
+      .aggregate([
+        {
+          $match: {
+            nowOn: 'Queue',
+          },
+        },
+        {
+          $lookup: {
+            from: 'diseases',
+            localField: 'disease',
+            foreignField: '_id',
+            as: 'disease',
+          },
+        },
+      ])
+      .limit(10);
+    data.sort((a, b) => {
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    });
+    data.map((patient) => {
+      patient.disease[0] = patient.disease[0]._id;
+      patient.disease = patient.disease[0];
+    });
+    return data;
+  }
+
   async getAllPatients(): Promise<PatientEntity[]> {
     return await this.patientModel.find();
   }
 
-  async throwPatientIDdbyPhyID(patientID: string): Promise<string> {
-    return (await this.patientModel.findOne({ PhyID: patientID }))._id;
+  async deletePatient(patientID: string): Promise<PatientEntity> {
+    return await this.patientModel.findByIdAndDelete(patientID);
   }
 }

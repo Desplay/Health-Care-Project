@@ -8,6 +8,10 @@ import { GraphQLModule } from '@nestjs/graphql';
       sortSchema: true,
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
+      installSubscriptionHandlers: true,
+      subscriptions: {
+        path: '/subscriptions',
+      },
       uploads: false,
       context: ({ req }) => ({ req }),
       introspection: true,

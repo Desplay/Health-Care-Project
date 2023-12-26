@@ -1,5 +1,6 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { DiseaseDTO } from 'src/diseases/datatype/disease.dto';
 
 @ObjectType()
 export class PatientDTO {
@@ -18,11 +19,14 @@ export class PatientDTO {
   @Field(() => String)
   gender: string;
 
-  @Field(() => String)
-  diseaseID: string;
+  @Field(() => DiseaseDTO)
+  disease: DiseaseDTO;
 
   @Field(() => String, { nullable: true })
   message: string;
+
+  @Field(() => String)
+  createdAt: string;
 }
 
 @InputType()
