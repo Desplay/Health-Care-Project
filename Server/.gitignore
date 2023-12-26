@@ -24,7 +24,8 @@ lerna-debug.log*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
-!.vscode/extensions.json
+!.vsco
+de/extensions.json
 
 # local
 note*
