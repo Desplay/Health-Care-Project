@@ -1,5 +1,6 @@
 import Footer from "../components/Footer";
 import NavBar from "../components/NavBar";
+import DoctorCard from "../components/Queue/DoctorCard";
 import Table from "../components/Queue/Table";
 
 function QueueScreen() {
@@ -9,11 +10,12 @@ function QueueScreen() {
       <section>
         <div className="container-fluid">
           <div className="row">
+            <DoctorCard />
             <Table />
           </div>
         </div>
       </section>
-      <footer className="footer">
+      <footer className="site-footer section-padding">
         <Footer />
       </footer>
     </>

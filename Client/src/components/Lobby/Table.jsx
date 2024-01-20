@@ -1,4 +1,5 @@
 import { useQuery, gql, useMutation } from "@apollo/client";
+import { Link } from "react-router-dom";
 
 function Table() {
   const { data, loading, error } = useQuery(
@@ -107,7 +108,10 @@ function Table() {
                         <tr key={patient.patientID}>
                           <td>{index + 1}</td>
                           <td>{patient.PhyID}</td>
-                          <td>{patient.name}</td>
+                          <td><Link to={`/EditPatient?ID=${patient.patientID}`}
+                          >
+                          {patient.name}
+                          </Link></td>
                           <td>{patient.age}</td>
                           <td>{patient.gender}</td>
                           <td>{patient.createdAt}</td>

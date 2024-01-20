@@ -7,14 +7,14 @@ import { useLocation } from "react-router-dom";
 import React from "react";
 import Table from "../components/Lobby/Table";
 
-function useQuery() {
+function useQueryParamater() {
   const { search } = useLocation();
 
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
 function LobbyScreen() {
-  const query = useQuery();
+  const query = useQueryParamater();
   const [AddPatient] = useMutation(
     gql`
       mutation CreatePatient(
@@ -65,7 +65,9 @@ function LobbyScreen() {
         <AddPatientForm />
       </section>
       <Table />
+      <footer className="site-footer section-padding">
       <Footer />
+      </footer>
     </>
   );
 }

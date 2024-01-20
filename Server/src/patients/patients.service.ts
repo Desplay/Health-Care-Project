@@ -6,6 +6,7 @@ import { PatientInput } from './datatype/patient.dto';
 import { PatientInputtoEntity } from './patients.pipe';
 import { DiseasesService } from 'src/diseases/diseases.service';
 import padZeros from 'src/utils/padZeros';
+import { DoctorsService } from 'src/doctors/doctors.service';
 
 @Injectable()
 export class PatientsService {
@@ -13,6 +14,7 @@ export class PatientsService {
     @InjectModel('Patient')
     private readonly patientModel: Model<PatientEntity>,
     private readonly diseaseService: DiseasesService,
+    private readonly doctorService: DoctorsService,
   ) {}
 
   async createPatient(patient: PatientInput): Promise<PatientEntity> {
@@ -36,13 +38,16 @@ export class PatientsService {
     return await this.patientModel.findById(id);
   }
 
-  async editPatient(id: string, patient: PatientInput): Promise<PatientEntity> {
-    const patientTransformed = new PatientInputtoEntity().transform(patient);
+  async editPatient(id: string, patient: any): Promise<PatientEntity> {
     const diseaseId = await this.diseaseService.throwDiseaseID(
       patient.diseaseID,
     );
-    patientTransformed.disease = diseaseId;
-    return await this.patientModel.findByIdAndUpdate(id, patientTransformed);
+    const disease = await this.diseaseService.getDiseaseById(
+      diseaseId.toString(),
+    );
+    patient.disease = disease._id;
+    return await this.patientModel.findByIdAndUpdate(id, patient);
+    // return await this.patientModel.findByIdAndUpdate(id, patientTransformed);
   }
 
   async getTenPatientsHighestRisk(): Promise<PatientEntity[]> {
@@ -71,31 +76,27 @@ export class PatientsService {
     return data;
   }
 
-  async movePatientToQueue(): Promise<PatientEntity> {
-    const patients = await this.getTenPatientsHighestRisk();
-    const patient = patients[0];
-    patient.nowOn = 'Queue';
-    return await this.patientModel.findByIdAndUpdate(patient._id, patient);
+  async getPatientsByDoctorPhyId(PhyID: string): Promise<PatientEntity[]> {
+    const patient = await this.patientModel.find({ nowOn: PhyID });
+    return patient;
   }
 
   async getPatientsInQueue(): Promise<PatientEntity[]> {
-    const data = await this.patientModel
-      .aggregate([
-        {
-          $match: {
-            nowOn: 'Queue',
-          },
+    const data = await this.patientModel.aggregate([
+      {
+        $match: {
+          nowOn: 'Queue',
         },
-        {
-          $lookup: {
-            from: 'diseases',
-            localField: 'disease',
-            foreignField: '_id',
-            as: 'disease',
-          },
+      },
+      {
+        $lookup: {
+          from: 'diseases',
+          localField: 'disease',
+          foreignField: '_id',
+          as: 'disease',
         },
-      ])
-      .limit(10);
+      },
+    ]);
     data.sort((a, b) => {
       return a.createdAt.getTime() - b.createdAt.getTime();
     });
@@ -104,6 +105,49 @@ export class PatientsService {
       patient.disease = patient.disease[0];
     });
     return data;
+  }
+
+  async movePatientToQueue(): Promise<PatientEntity> {
+    const patients = await this.getTenPatientsHighestRisk();
+    const patient = patients[0];
+    patient.nowOn = 'Queue';
+    return await this.patientModel.findByIdAndUpdate(patient._id, patient);
+  }
+
+  async movePatientToDoctor(): Promise<PatientEntity> {
+    const patients = await this.patientModel.aggregate([
+      {
+        $match: {
+          nowOn: 'Queue',
+        },
+      },
+      {
+        $lookup: {
+          from: 'diseases',
+          localField: 'disease',
+          foreignField: '_id',
+          as: 'disease',
+        },
+      },
+    ]);
+    const doctors = await this.doctorService.getDoctors();
+    for await (const patient of patients) {
+      for await (const doctor of doctors) {
+        const patients = await this.getPatientsByDoctorPhyId(doctor.PhyID);
+        if (
+          patients.length < doctor.maxCapacity &&
+          doctor.specialist == patient.disease[0].specialist
+        ) {
+          patient.nowOn = doctor.PhyID;
+          patient.disease = patient.disease[0]._id;
+          return await this.patientModel.findByIdAndUpdate(
+            patient._id,
+            patient,
+          );
+        }
+      }
+    }
+    return;
   }
 
   async getAllPatients(): Promise<PatientEntity[]> {

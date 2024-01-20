@@ -32,10 +32,15 @@ export class PatientsResolver {
     const patientData = await this.patientsService.getPatientById(patientID);
     if (!patientData) throw new ForbiddenException('Patient not found!');
     const patientReturn = new PatientEntitytoDTO().transform(patientData);
+    patientReturn.patientID = patientData._id;
+    const diseaseData = await this.diseasesService.getDiseaseById(
+      patientData.disease.toString(),
+    );
+    patientReturn.disease = diseaseData;
     return patientReturn;
   }
 
-  @Query(() => String)
+  @Mutation(() => String)
   async editPatient(
     @Args({ name: 'patientID', type: () => String }) patientID: string,
     @Args({ name: 'patientInput', type: () => PatientInput })
@@ -100,6 +105,12 @@ export class PatientsResolver {
   async movePatientToQueue(): Promise<string> {
     await this.patientsService.movePatientToQueue();
     return 'Patient moved to queue!';
+  }
+
+  @Mutation(() => String)
+  async movePatientToDoctor(): Promise<string> {
+    await this.patientsService.movePatientToDoctor();
+    return 'Patient moved to doctor!';
   }
 
   @Mutation(() => String)

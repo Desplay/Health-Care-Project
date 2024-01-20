@@ -1,4 +1,5 @@
 import { useQuery, gql, useMutation } from "@apollo/client";
+
 function Table() {
   const { data, loading, error } = useQuery(
     gql`
@@ -28,14 +29,24 @@ function Table() {
       }
     `
   );
-  
+
+  const [MovePatientToDoctor] = useMutation(
+    gql`
+      mutation {
+        movePatientToDoctor
+      }
+    `
+  );
 
   if (loading || error) return <></>;
 
   const patients = data.getPatientsInQueue;
   if (patients.length === 0) return <></>;
 
-  const handleMovePatientToDoctor = async () => {};
+  const handleMovePatientToDoctor = async () => {
+    await MovePatientToDoctor();
+    window.location.reload();
+  };
 
   const handleRemovePatient = async (patientID) => {
     await RemovePatient({
@@ -100,7 +111,7 @@ function Table() {
                           <td>{patient.disease.diseaseName}</td>
                           <td>{patient.message}</td>
                           <td>
-                          <a
+                            <a
                               href=""
                               onClick={async () => {
                                 await handleRemovePatient(patient.patientID);

@@ -19,11 +19,23 @@ type Diseases {
   Diseases: [DiseaseDTO!]!
 }
 
+type DoctorDTO {
+  PhyID: String!
+  id: String!
+  maxCapacity: Float!
+  name: String!
+  patients: [PatientDTO!]!
+  specialist: String!
+}
+
 type Mutation {
   createDefaultDiseases: String!
   createDisease(diseaseInput: DiseaseInput!): String!
   createPatient(patientInput: PatientInput!): String!
   deletePatient(patientID: String!): String!
+  doneFirstPatient(Doctor_id: String!): String!
+  editPatient(patientID: String!, patientInput: PatientInput!): String!
+  movePatientToDoctor: String!
   movePatientToQueue: String!
 }
 
@@ -47,11 +59,12 @@ input PatientInput {
 }
 
 type Query {
-  editPatient(patientID: String!, patientInput: PatientInput!): String!
   getAllPatients: [PatientDTO!]!
   getDetailsPatient(patientID: String!): PatientDTO!
   getDisease(diseaseNameorID: String!): DiseaseDTO!
   getDiseases: Diseases!
+  getDoctorById(Doctor_id: String!): DoctorDTO!
+  getDoctors: [DoctorDTO!]!
   getPatientsInQueue: [PatientDTO!]!
   getTenPatientsHighestRisk: [PatientDTO!]!
 }

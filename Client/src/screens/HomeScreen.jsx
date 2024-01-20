@@ -9,7 +9,7 @@ export default function HomeScreen() {
       <section className="section-padding">
         <Background />
       </section>
-      <footer className="footer">
+      <footer className="site-footer section-padding">
         <Footer />
       </footer>
     </>
